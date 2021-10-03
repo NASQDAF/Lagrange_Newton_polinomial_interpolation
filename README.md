@@ -21,8 +21,9 @@ e.g.
 
 >![изображение](https://user-images.githubusercontent.com/69731829/133691626-cacd7e61-2b8b-4f30-ac17-55eeeb62d689.png)
 >![изображение](https://user-images.githubusercontent.com/69731829/133691394-efd9025e-b3fd-4b9d-bf8a-ffbbc7fd16e8.png)
->Here we have 25 points with some [x]-step at range from [a] to [b]. Initially we calculate by the same step algorithm for 10 points of equal dimension on a dataset of 25 points. We compare it to the required function and obtain the residual value. This is what happens with the Lagrange and Newton algorithms. Then we compute the Lagrange algorithm by the second step algorithm with the recalculation of points by the main function initially there are 10 points. We want to get 15 points with the available dataset. The inconsistency grows accordingly.
+>Here we have 25 points with some [x]-step at range from [a] to [b]. Initially we calculate by the same step algorithm for 10 points of equal dimension on a dataset of 25 points. We compare it to the required function and obtain the residual value. This is what happens with the Lagrange and Newton Forward and Backward algorithms. Then we compute algorithms by the second step algorithm with the recalculation of points by the main function initially there are 10 points.
 >
->![изображение](https://user-images.githubusercontent.com/69731829/134971517-4b52c0b9-b8b8-4d3b-87f9-31066590fab2.png)
+>![изображение](https://user-images.githubusercontent.com/69731829/135759456-bff813ba-5239-4f03-ae1b-557da637f284.png)
+
 
 
