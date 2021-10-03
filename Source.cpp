@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 using std::vector;
+
 #pragma region Data
 
 size_t n = 25, another_n = 10;
@@ -10,8 +11,7 @@ vector<std::pair<double, double>> pointsData;
 vector<double> NewtonFwPoints;
 inline double f(double x) { return -x * (1 - exp(cos(x)) + 2 * x * cos(x)); } //y = f(x)
 
-
-class Offset{ // [x] steps frequency
+class Offset{
 public:
     inline double f(size_t i) {
         switch (tumb) {
@@ -27,7 +27,6 @@ private:
     static int tumb;
 }offset;
 int Offset::tumb = 0;
-
 
 #pragma endregion
 
@@ -50,30 +49,40 @@ double Lagrange(double x) {
 }
 
 #pragma region Newton
-void insertFirstY(vector<double>& a) {
-    for (auto i : pointsData)
-        a.push_back(i.second);
-}
-void Newton_forward_points() {
-    vector<vector<double>> vvd(n);
-    NewtonFwPoints.push_back(pointsData[0].second);
-    insertFirstY(vvd[0]);
-    for (size_t i = 1; i < n; ++i) {
-        for (size_t j = 0; j < n - i; ++j)
-            vvd[i].push_back((vvd[i - 1][j + 1] - vvd[i - 1][j]) / (offset.f(j + i) - offset.f(j)));
-        NewtonFwPoints.push_back(vvd[i][0]);
+
+double DIFFERENCE(vector<double> x) {
+    double P = 0.0, l = 1.0;
+    for (size_t j = 0; j < x.size(); j++, l = 1.0) {
+        for (size_t i = 0; i < x.size(); i++)
+            if (i != j)
+                l *= (x[j] - x[i]);
+        P += f(x[j]) / l;
     }
+    return P;
 }
-double Newton_forward(double x) {
-    double d = 0, f = NewtonFwPoints[0];
-    for (size_t i = 1; i < n; ++i) {
-        d = NewtonFwPoints[i];
-        for (size_t j = 0; j < i; ++j)
-            d *= (x - offset.f(j));
-        f += d;
+double Newton_Forward(double t) {
+    double P = 0.0, l = 1.0;
+    vector<double> X;
+    X.push_back(offset.f(0));
+    for (size_t i = 0; i < n; i++){
+        X.push_back(offset.f(i + 1));
+        l *= (t - offset.f(i));
+        P += DIFFERENCE(X) * l;
     }
-    return f;
+    return f(offset.f(0)) + P;
 }
+double Newton_Backward(double t) {
+    double P = 0.0, l = 1.0;
+    vector<double> X;
+    X.push_back(offset.f(n));
+    for (size_t i = n; i > 0; i--) {
+        X.push_back(offset.f(i - 1));
+        l *= (t - offset.f(i));
+        P += DIFFERENCE(X) * l;
+    }
+    return f(offset.f(n)) + P;
+}
+
 #pragma endregion
 
 template<typename T>
@@ -84,7 +93,7 @@ inline void show(T Func) {
         tempFunc = f(offset.f(i));
         std::cout << "[" << std::setw(2) << i + 1 << "]:  " 
             << std::setw(12) << tempFunc 
-            << std::setw(12) << tempInterpolation 
+            << std::setw(13) << tempInterpolation 
             << std::setw(15) << abs(tempFunc) - abs(tempInterpolation) 
             << std::endl;
     }
@@ -102,7 +111,7 @@ int main() {
     cout << "\`-. |   |  .-.  Function: f(x) = -x (cos(x)2x - exp(cos(x)) + 1)\n" 
         "\___`-.__|,`_|_  Count of Data Points: " << pointsData.size() 
         << "\n    | `-`       Count of prediction points: " << another_n 
-        << "\n\n"<< setw(10) << "x" << setw(15) << "f(x):\n" << endl;
+        << "\n\n"<< setw(10) << "x" << setw(15) << "f(x):" << endl;
     ioman(0);
     for (size_t i = 0; i < pointsData.size(); i++)
         cout << "[" << setw(2) << i + 1 << "]:  " 
@@ -113,34 +122,34 @@ int main() {
     n = another_n;
 
     ioman(1);
-    cout << "\n\n\tLagrange method:\n\n" 
+    cout << "\n\n\tLagrange:\t\tN="<<n<<endl<<endl
         << setw(15) << "f(x): "
         << setw(11) << "Ln(x):"
         << setw(15) << "Residual:"
         << std::endl;
     ioman(0);
     show(Lagrange);
-
     ioman(1);
-    cout << "\n\n\tNewton method:\n\n" 
+    cout << "\n\n\tNewton+:\t\tN=" << n << endl << endl
         << setw(15) << "f(x): "
-        << setw(11) << "Nw(x):" 
+        << setw(11) << "Nw+(x):" 
         << setw(15) << "Residual:" 
         << std::endl;
     ioman(0);
-    Newton_forward_points();
-    show(Newton_forward);
+    show(Newton_Forward);
 
-    offset = 1; //Algorithm step change
-    PointsWeKnow_FromSteps(f); //Recalc
+    //offset = 1;                   //Algorithm step change
+    //PointsWeKnow_FromSteps(f);    //Recalc
+    //n = 15;                       //Changing amount of points again
     ioman(1);
-    cout << "\n\n\tLagrange method:\n\n" 
+    cout << "\n\n\tNewton-:\t\tN=" << n << endl << endl
         << setw(15) << "f(x): "
-        << setw(11) << "Ln(x):"
+        << setw(11) << "Nw-(x):"
         << setw(15) << "Residual:"
         << std::endl;
     ioman(0);
-	n = 15; //Changing amount of points again
-	show(Lagrange); 
+    
+    show(Newton_Backward);
     system("pause");
+    return 0;
 }
